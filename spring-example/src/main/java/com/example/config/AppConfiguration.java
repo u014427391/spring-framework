@@ -1,12 +1,13 @@
 package com.example.config;
 
+import com.example.bean.SpringBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.example.bean.A;
 
 /**
  * <pre>
- *
+ *      AppConfiguration
  * </pre>
  *
  * <pre>
@@ -21,6 +22,11 @@ public class AppConfiguration {
     @Bean
     public A a(){
         return new A();
+    }
+
+    @Bean
+    public SpringBean springBean() {
+        return new SpringBean();
     }
 
 }

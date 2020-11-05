@@ -1,6 +1,7 @@
 package com.example;
 
 
+import com.example.bean.SpringBean;
 import com.example.config.AppConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import com.example.bean.A;
@@ -22,6 +23,7 @@ public class TestApplication {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
         context.register(AppConfiguration.class);
         context.refresh();
-        System.out.println(context.getBean(A.class));
+        SpringBean bean = context.getBean(SpringBean.class);
+        System.out.println(bean);
     }
 }
