@@ -29,4 +29,14 @@ public class AppConfiguration {
         return new SpringBean();
     }
 
+    @Bean
+    public CustomBeanFactoryPostProcessor customBeanFactoryPostProcessor(){
+        return new CustomBeanFactoryPostProcessor();
+    }
+
+    @Bean
+    public CustomBeanPostProcessor customBeanPostProcessor(){
+        return new CustomBeanPostProcessor();
+    }
+
 }

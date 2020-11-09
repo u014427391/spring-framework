@@ -515,29 +515,38 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
+		// 注意：加了同步锁，保证容器的调用不冲突
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
 			// 第一步：刷新Spring IoC容器前的预处理
+			// 记录容器的启动时间，标记启动状态，处理配置文件占位符等等
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
-			//
+			// 第二步：获取BeanFactory，默认实现是DefaultListableBeanFactory
+			// 这一步比较重要，执行完成之后，xml配置会被解析成一个个BeanDefinition并注册到BeanFactory
+			// 但是BeanDefinition还没实例完成，只是配置信息被提取处理
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
+			// 第三步：BeanFactory的准备工作
+			// 对BeanFactory进行一些配置，设置BeanFactory的类加载器等等
 			prepareBeanFactory(beanFactory);
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
 				// 第四步：BeanFactory准备工作完成之后的后置处理
+				// 添加一些BeanFactoryPostProcessor 实现类，典型模板方法（设计模式：模板模式），给子类实现
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
-				// 第五步：实例并调用BeanFactoryPostProcessors（BeanFactory后置处理器）
+				// 第五步：实例并调用（invoke）BeanFactoryPostProcessors接口的postProcessBeanFactory方法（BeanFactory后置处理器）
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
-				// 第六步：注册BeanPostProcessors（Bean后置处理器）
+				// 第六步：注册BeanPostProcessors实现类（Bean后置处理器）
+				// BeanPostProcessors接口两个方法：postProcessBeforeInitialization 和 postProcessAfterInitialization
+				// postProcessBeforeInitialization 和 postProcessAfterInitialization分别在Bean创建的前后执行
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -549,16 +558,19 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
-				//
+				// 第九步：典型的模板方法（设计模式：模板模式），具体实现给子类实现，在IoC容器刷新时候添加自己的逻辑代码
 				onRefresh();
 
 				// Check for listener beans and register them.
+				// 第十步：注册监听器，ApplicationListener接口的监听器
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
+				// 第十一步：非懒加载(lazy-init=false，默认)的单例bean初始化实例完成
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
+				// 第十二步：完成ApplicationContext的刷新，调用LifecycleProcessor的onRefresh方法
 				finishRefresh();
 			}
 
@@ -569,18 +581,21 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				}
 
 				// Destroy already created singletons to avoid dangling resources.
+				// 回收bean资源
 				destroyBeans();
 
 				// Reset 'active' flag.
 				cancelRefresh(ex);
 
 				// Propagate exception to caller.
+				// 异常往上抛，具体实现类才能捕获到异常信息
 				throw ex;
 			}
 
 			finally {
 				// Reset common introspection caches in Spring's core, since we
 				// might not ever need metadata for singleton beans anymore...
+				// 刷新缓存
 				resetCommonCaches();
 			}
 		}
@@ -592,6 +607,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void prepareRefresh() {
 		// Switch to active.
+		// 记录启动时间，active属性设置为true，closed属性设置为false
 		this.startupDate = System.currentTimeMillis();
 		this.closed.set(false);
 		this.active.set(true);
@@ -601,10 +617,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Initialize any placeholder property sources in the context environment.
+		// 处理配置文件中的占位符
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
+		// 校验配置文件
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...
@@ -638,7 +656,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getBeanFactory()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+		// 创建BeanFactory
 		refreshBeanFactory();
+		// 返回refreshBeanFactory方法创建好的BeanFactory
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
 		if (logger.isDebugEnabled()) {
 			logger.debug("Bean factory for " + getDisplayName() + ": " + beanFactory);
