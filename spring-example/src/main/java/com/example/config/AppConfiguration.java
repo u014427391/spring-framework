@@ -4,6 +4,7 @@ import com.example.bean.SpringBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.example.bean.A;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * <pre>
@@ -25,6 +26,7 @@ public class AppConfiguration {
     }
 
     @Bean
+    //@Lazy
     public SpringBean springBean() {
         return new SpringBean();
     }
