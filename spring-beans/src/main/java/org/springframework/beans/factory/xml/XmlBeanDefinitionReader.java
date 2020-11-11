@@ -316,7 +316,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (logger.isInfoEnabled()) {
 			logger.info("Loading XML bean definitions from " + encodedResource);
 		}
-
+		// 用ThreadLocal存放资源对象，目的是保证线程安全
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
@@ -333,6 +333,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
+				// 核心，往下跟
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
@@ -388,7 +389,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
 		try {
+			// 读取xml信息，将xml信息保存在Document对象
 			Document doc = doLoadDocument(inputSource, resource);
+			// 封装BeanDefinitions并注册，继续解析Document对象
 			return registerBeanDefinitions(doc, resource);
 		}
 		catch (BeanDefinitionStoreException ex) {
@@ -504,8 +507,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		// 获取已有的BeanDefinition数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		// 注册BeanDefinition，关注点：registerBeanDefinitions、createReaderContext
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+		// 返回新注册的BeanDefinition统计数量
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

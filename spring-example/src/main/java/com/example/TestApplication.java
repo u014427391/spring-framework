@@ -5,6 +5,7 @@ import com.example.bean.SpringBean;
 import com.example.config.AppConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import com.example.bean.A;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * <pre>
@@ -19,11 +20,24 @@ import com.example.bean.A;
  */
 public class TestApplication {
 
-    public static void main(String[] args) {
+    public static void testAnnotationConfigApplicationContext() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
         context.register(AppConfiguration.class);
         context.refresh();
         SpringBean bean = context.getBean(SpringBean.class);
         System.out.println(bean);
+    }
+
+    public static void testClassPathXmlApplicationContext() {
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+        SpringBean  springBean = context.getBean(SpringBean.class);
+        System.out.println(springBean);
+    }
+
+    public static void main(String[] args) {
+        // 测试AnnotationConfigApplicationContext
+        //testAnnotationConfigApplicationContext();
+        // 测试ClassPathXmlApplicationContext
+        testClassPathXmlApplicationContext();
     }
 }
