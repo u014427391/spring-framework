@@ -264,7 +264,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
-			// 为了避免循环引用，遇到这种情况，直接抛出异常
+			// 校验是否是多例(Prototype)的Bean，多例的bean是不支持循环依赖的
+			// 为了避免循环依赖，遇到这种情况，直接抛出异常
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
@@ -346,11 +347,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
+						// 多例的情况，创建bean之前添加标记（用于循环依赖校验）
 						beforePrototypeCreation(beanName);
 						 // 执行多例Bean创建
 						prototypeInstance = createBean(beanName, mbd, args);
 					}
 					finally {
+						// 创建原型（多例）bean之后擦除标记
 						afterPrototypeCreation(beanName);
 					}
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);

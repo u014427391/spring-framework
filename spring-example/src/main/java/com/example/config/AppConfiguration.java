@@ -1,10 +1,12 @@
 package com.example.config;
 
+import com.example.bean.B;
 import com.example.bean.SpringBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.example.bean.A;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 
 /**
  * <pre>
@@ -21,12 +23,19 @@ import org.springframework.context.annotation.Lazy;
 public class AppConfiguration {
 
     @Bean
+    //@Scope("prototype")
     public A a(){
         return new A();
     }
 
     @Bean
-    //@Lazy
+    @Scope("prototype")
+    public B b() {
+        return new B();
+    }
+
+    @Bean
+    @Lazy(value = false)
     public SpringBean springBean() {
         return new SpringBean();
     }

@@ -34,10 +34,21 @@ public class TestApplication {
         System.out.println(springBean);
     }
 
+    public static void testCircularReferences() {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.register(AppConfiguration.class);
+        //context.setAllowCircularReferences(false);
+        context.refresh();
+        A bean = context.getBean(A.class);
+        System.out.println(bean);
+    }
+
     public static void main(String[] args) {
         // 测试AnnotationConfigApplicationContext
         //testAnnotationConfigApplicationContext();
         // 测试ClassPathXmlApplicationContext
-        testClassPathXmlApplicationContext();
+        //testClassPathXmlApplicationContext();
+        // 测试Sprin循环依赖
+        testCircularReferences();
     }
 }

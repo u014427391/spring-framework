@@ -3,7 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="springBean" class="com.example.bean.SpringBean" ></bean>
+    <bean id="springBean" lazy-init="false" class="com.example.bean.SpringBean" ></bean>
     <bean id="customBeanFactoryPostProcessor" class="com.example.config.CustomBeanFactoryPostProcessor"></bean>
     <bean id="customBeanPostProcessor" class="com.example.config.CustomBeanPostProcessor"></bean>
 
