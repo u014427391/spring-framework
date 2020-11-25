@@ -1,6 +1,8 @@
 package com.example;
 
 
+import com.example.aop.config.SpringAspectJConfiguration;
+import com.example.aop.service.UserService;
 import com.example.bean.SpringBean;
 import com.example.config.AppConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -43,12 +45,22 @@ public class TestApplication {
         System.out.println(bean);
     }
 
+    public static void testSpringAopProxy() {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.register(SpringAspectJConfiguration.class);
+        context.refresh();
+        UserService userService = (UserService) context.getBean("userService");
+        System.out.println(userService.findUserNameById(1L));
+    }
+
     public static void main(String[] args) {
         // 测试AnnotationConfigApplicationContext
         //testAnnotationConfigApplicationContext();
         // 测试ClassPathXmlApplicationContext
         //testClassPathXmlApplicationContext();
         // 测试Sprin循环依赖
-        testCircularReferences();
+        //testCircularReferences();
+        // 测试AOP代理对象
+        testSpringAopProxy();
     }
 }
