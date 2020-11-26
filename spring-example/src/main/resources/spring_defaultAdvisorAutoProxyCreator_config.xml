@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 具体业务实现类（target Object）-->
+    <bean id="userService" class="com.example.aop.service.impl.UserServiceImpl"></bean>
+
+    <!-- 实现MethodBeforeAdvice-->
+    <bean id="logMethodBeforeAdvice" class="com.example.aop.core.advice.LogMethodBeforeAdvice"></bean>
+    <!-- 实现AfterReturningAdvice-->
+    <bean id = "logAfterReturningAdvice" class="com.example.aop.core.advice.LogAfterReturningAdvice"></bean>
+
+    <!-- 定义MethodInterceptor -->
+    <bean id="methodInterceptor" class="com.example.aop.core.interceptor.TestMethodInterceptor"></bean>
+
+    <bean id="1" class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
+        <property name="mappedName" value="get*"></property>
+        <property name="advice" ref="methodInterceptor"></property>
+    </bean>
+
+    <!-- 定义BeanNameAutoProxyCreator -->
+    <bean id="autoProxyCreator" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+    </bean>
+
+
+</beans>

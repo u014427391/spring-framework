@@ -1,7 +1,9 @@
 package com.example;
 
 
+import com.example.aop.bean.User;
 import com.example.aop.config.SpringAspectJConfiguration;
+import com.example.aop.config.SpringAutoProxyConfiguration;
 import com.example.aop.service.UserService;
 import com.example.bean.SpringBean;
 import com.example.config.AppConfiguration;
@@ -45,12 +47,25 @@ public class TestApplication {
         System.out.println(bean);
     }
 
-    public static void testSpringAopProxy() {
+    public static void testSpringAopApsectJ() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
         context.register(SpringAspectJConfiguration.class);
         context.refresh();
         UserService userService = (UserService) context.getBean("userService");
         System.out.println(userService.findUserNameById(1L));
+    }
+
+    public static void testSpringAopProxy() {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.register(SpringAutoProxyConfiguration.class);
+        context.refresh();
+        //ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:spring_defaultAdvisorAutoProxyCreator_config.xml");
+        UserService userService = context.getBean(UserService.class);
+        User userDto = new User();
+        userDto.setUsername("tom");
+        userDto.setPassword("11");
+        userService.addUser(userDto);
+        System.out.println(String.format("用户数据打印:%s",userService.getUser().toString()));
     }
 
     public static void main(String[] args) {
@@ -60,7 +75,8 @@ public class TestApplication {
         //testClassPathXmlApplicationContext();
         // 测试Sprin循环依赖
         //testCircularReferences();
-        // 测试AOP代理对象
+        // 测试Spring AOP
+        //testSpringAopApsectJ();
         testSpringAopProxy();
     }
 }
