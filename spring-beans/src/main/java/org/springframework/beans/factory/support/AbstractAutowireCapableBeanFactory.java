@@ -537,7 +537,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		// 不是FactoryBean的情况
 		if (instanceWrapper == null) {
-			// 创建Bean实例，但是还没设置属性
+			// 1、创建Bean实例，但是还没设置属性
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
 		Object bean = instanceWrapper.getWrappedInstance();
@@ -577,9 +577,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
-			// 关键一步，Bean属性填充
+			// 2、装载属性，关键一步
 			populateBean(beanName, mbd, instanceWrapper);
-			// 调用初始化方法，应用BeanPostProcess后置处理器
+			// 3、调用初始化方法，应用BeanPostProcess后置处理器
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1707,10 +1707,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
+			// 调用每一个后置处理器（BeanPostProcessor）的postProcessBeforeInitialization方法
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 
 		try {
+			// 调用Bean中的init-method (xml的是init-method="?"的方法)
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		}
 		catch (Throwable ex) {
@@ -1719,6 +1721,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					beanName, "Invocation of init method failed", ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
+			// 执行每一个 BeanPostProcessor 的 postProcessAfterInitialization 方法
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 

@@ -299,6 +299,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (bean != null) {
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+				// 往下跟，封装返回代理类
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
 		}
@@ -347,9 +348,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		}
 
 		// Create proxy if we have advice.
+		//返回当前bean的advisor、advice、interceptor
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// 重点在这，创建代理
+			// 两种方式：CGLIB动态代理和JDK代理
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			this.proxyTypes.put(cacheKey, proxy.getClass());
@@ -446,14 +450,20 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			AutoProxyUtils.exposeTargetClass((ConfigurableListableBeanFactory) this.beanFactory, beanName, beanClass);
 		}
 
+		// 创建ProxyFactory实例
 		ProxyFactory proxyFactory = new ProxyFactory();
 		proxyFactory.copyFrom(this);
 
+		// proxyTargetClass = false 默认不开启，默认是使用JDK代理的
+		// @EnableAspectJAutoProxy(proxyTargetClass = false) 或者 <aop:config proxy-target-class="false">
 		if (!proxyFactory.isProxyTargetClass()) {
 			if (shouldProxyTargetClass(beanClass, beanName)) {
+				// 实现ConfigurableListableBeanFactory接口，
+				// 而且org.springframework.aop.TargetSource#@see shouldProxyTargetClass返回true
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
+				// 两种情况：
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
