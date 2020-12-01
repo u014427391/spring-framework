@@ -120,6 +120,9 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		}
 		Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
 		findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
+		// 获取代理实例 调用了JDK API进行newProxyInstance，创建实例，
+		// 参数：① classLoader，类加载实例  ② proxiedInterfaces，表示需要实现哪些接口
+		// ③ this，表示InvocationHandler，JdkDynamicAopProxy实现了InvocationHandler
 		return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
 	}
 

@@ -298,6 +298,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) throws BeansException {
 		if (bean != null) {
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
+			// 缓存 earlyProxyReferences
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
 				// 往下跟，封装返回代理类
 				return wrapIfNecessary(bean, beanName, cacheKey);
@@ -450,7 +451,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			AutoProxyUtils.exposeTargetClass((ConfigurableListableBeanFactory) this.beanFactory, beanName, beanClass);
 		}
 
-		// 创建ProxyFactory实例
+		// 创建ProxyFactory实例，创建AopProxy工作交给ProxyFactory
 		ProxyFactory proxyFactory = new ProxyFactory();
 		proxyFactory.copyFrom(this);
 
@@ -463,13 +464,15 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
-				// 两种情况：
+				// 两种情况：1、有接口的，调用一次或多次：proxyFactory.addInterface(ifc);
+				// 2. 没有接口的，调用：proxyFactory.setProxyTargetClass(true);
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
-
+		// 构建当前 bean 的 advisors 数组，把指定和通⽤拦截对象合并, 并都适配成Advisor
 		Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
 		proxyFactory.addAdvisors(advisors);
+		// 设置参数
 		proxyFactory.setTargetSource(targetSource);
 		customizeProxyFactory(proxyFactory);
 
@@ -477,7 +480,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (advisorsPreFiltered()) {
 			proxyFactory.setPreFiltered(true);
 		}
-
+		// 通过proxyFactory获取代理对象，开始创建AopProxy工作
 		return proxyFactory.getProxy(getProxyClassLoader());
 	}
 
